@@ -1,3 +1,5 @@
+use regex::Regex;
+
 fn _get_char(pos: i32, curr_pos: i32, line_offset: i32, input: &str, line_len: i32) -> char {
     if pos <= 0 || pos >= input.len() as i32 || curr_pos <= 0 || curr_pos >= input.len() as i32 {
         return '.';
@@ -11,16 +13,24 @@ fn _get_char(pos: i32, curr_pos: i32, line_offset: i32, input: &str, line_len: i
     '.'
 }
 
+pub struct Input {
+    input: String,
+    line_len: i32
+}
+
+#[aoc_generator(day4)]
+pub fn input_generator(in_lines: &str) -> Input {
+    let new_line_regex = Regex::new(r"\n").unwrap();
+    Input {
+        input: new_line_regex.replace_all(in_lines, "").to_string(),
+        line_len: new_line_regex.find(in_lines).unwrap().start() as i32
+    }
+}
+
 #[aoc(day4, part1)]
-pub fn solve_part1(in_lines: &str) -> i32 {
-    let mut line_len = 0;
-    let mut input = String::new();
-    in_lines
-        .lines()
-        .for_each(|l| {
-            line_len = l.len() as i32;
-            input.push_str(l);
-        });
+pub fn solve_part1(input_data: &Input) -> i32 {
+    let line_len = input_data.line_len;
+    let input = &input_data.input;
     let offsets = vec![
         -1,
         1,
@@ -61,15 +71,9 @@ pub fn solve_part1(in_lines: &str) -> i32 {
 }
 
 #[aoc(day4, part2)]
-pub fn solve_part2(in_lines: &str) -> i32 {
-    let mut line_len = 0;
-    let mut input = String::new();
-    in_lines
-        .lines()
-        .for_each(|l| {
-            line_len = l.len() as i32;
-            input.push_str(l);
-        });
+pub fn solve_part2(input_data: &Input) -> i32 {
+    let line_len = input_data.line_len;
+    let input = &input_data.input;
     let offsets = vec![
         -1,
         1,
