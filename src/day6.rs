@@ -14,7 +14,7 @@ fn follow_path(input: &String, line_len: i32, start_pos: i32, start_direction: u
     loop {
         let (next, i) = get_char[direction](pos, 1);
         let prev_direction = direction;
-        if next == 'o' {
+        if next == '!' {
             break;
         } else if next == '#' || i == block_pos {
             direction = match direction {
