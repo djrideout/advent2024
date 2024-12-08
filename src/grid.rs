@@ -1,17 +1,24 @@
 use regex::Regex;
 use std::sync::Arc;
 
-fn _get_char(pos: i32, curr_pos: i32, line_offset: i32, input: Arc<String>, line_len: i32) -> char {
-    if pos <= 0 || pos >= input.len() as i32 || curr_pos <= 0 || curr_pos >= input.len() as i32 {
-        return 'o';
+pub fn is_inbounds(pos: i32, curr_pos: i32, line_offset: i32, input_len: usize, line_len: i32) -> bool {
+    if pos < 0 || pos >= input_len as i32 || curr_pos < 0 || curr_pos >= input_len as i32 {
+        return false;
     }
     let curr_row = curr_pos / line_len;
     let other_row_start = (curr_row + line_offset) * line_len;
     let other_row_end = other_row_start + line_len - 1;
     if pos >= other_row_start && pos <= other_row_end {
+        return true;
+    }
+    false
+}
+
+fn _get_char(pos: i32, curr_pos: i32, line_offset: i32, input: Arc<String>, line_len: i32) -> char {
+    if is_inbounds(pos, curr_pos, line_offset, input.len(), line_len) {
         return input.chars().nth(pos as usize).unwrap();
     }
-    'o'
+    '!'
 }
 
 pub fn get_closures(input: Arc<String>, line_len: i32) -> Vec<Box<dyn Fn(i32, i32) -> (char, i32)>> {
