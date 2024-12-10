@@ -1,5 +1,4 @@
-use std::sync::Arc;
-use crate::grid::{Input, get_closures, generate_input};
+use crate::grid::{Input, Grid, generate_input};
 
 #[aoc_generator(day4)]
 pub fn input_generator(in_lines: &str) -> Input {
@@ -10,7 +9,7 @@ pub fn input_generator(in_lines: &str) -> Input {
 pub fn solve_part1(input_data: &Input) -> i32 {
     let line_len = input_data.line_len;
     let input = &input_data.input;
-    let get_char = get_closures(Arc::new(input.clone()), line_len);
+    let grid = Grid::new(input.clone(), line_len);
     let mut xmas_count = 0;
     let mut i = 0;
     for char in input.chars() {
@@ -20,9 +19,9 @@ pub fn solve_part1(input_data: &Input) -> i32 {
         }
         for j in 0 .. 8 {
             let is_xmas =
-                get_char[j](i, 1).0 == 'M' &&
-                get_char[j](i, 2).0 == 'A' &&
-                get_char[j](i, 3).0 == 'S';
+                grid.get_char(i, j, 1).0 == 'M' &&
+                grid.get_char(i, j, 2).0 == 'A' &&
+                grid.get_char(i, j, 3).0 == 'S';
             xmas_count += is_xmas as i32;
         }
         i += 1;
@@ -34,7 +33,7 @@ pub fn solve_part1(input_data: &Input) -> i32 {
 pub fn solve_part2(input_data: &Input) -> i32 {
     let line_len = input_data.line_len;
     let input = &input_data.input;
-    let get_char = get_closures(Arc::new(input.clone()), line_len);
+    let grid = Grid::new(input.clone(), line_len);
     let mut xmas_count = 0;
     let mut i = 0;
     for char in input.chars() {
@@ -43,11 +42,11 @@ pub fn solve_part2(input_data: &Input) -> i32 {
             continue;
         }
         let is_xmas_down =
-            get_char[0](i, 1).0 == 'M' && get_char[7](i, 1).0 == 'S' ||
-            get_char[7](i, 1).0 == 'M' && get_char[0](i, 1).0 == 'S';
+            grid.get_char(i, 0, 1).0 == 'M' && grid.get_char(i, 7, 1).0 == 'S' ||
+            grid.get_char(i, 7, 1).0 == 'M' && grid.get_char(i, 0, 1).0 == 'S';
         let is_xmas_up =
-            get_char[5](i, 1).0 == 'M' && get_char[2](i, 1).0 == 'S' ||
-            get_char[2](i, 1).0 == 'M' && get_char[5](i, 1).0 == 'S';
+            grid.get_char(i, 5, 1).0 == 'M' && grid.get_char(i, 2, 1).0 == 'S' ||
+            grid.get_char(i, 2, 1).0 == 'M' && grid.get_char(i, 5, 1).0 == 'S';
         xmas_count += (is_xmas_down && is_xmas_up) as i32;
         i += 1;
     }

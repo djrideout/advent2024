@@ -1,6 +1,5 @@
 use regex::Regex;
-use std::sync::Arc;
-use crate::grid::{Input, get_closures, generate_input};
+use crate::grid::{Input, Grid, generate_input};
 
 #[aoc_generator(day6)]
 pub fn input_generator(in_lines: &str) -> Input {
@@ -8,11 +7,11 @@ pub fn input_generator(in_lines: &str) -> Input {
 }
 
 fn follow_path(input: &String, line_len: i32, start_pos: i32, start_direction: usize, block_pos: i32, mut on_pos: impl FnMut(char, i32, usize) -> bool) -> bool {
-    let get_char = get_closures(Arc::new(input.clone()), line_len);
+    let grid = Grid::new(input.clone(), line_len);
     let mut pos = start_pos;
     let mut direction = start_direction;
     loop {
-        let (next, i) = get_char[direction](pos, 1);
+        let (next, i) = grid.get_char(pos, direction, 1);
         let prev_direction = direction;
         if next == '!' {
             break;
