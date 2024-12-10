@@ -1,5 +1,5 @@
 use std::collections::HashMap;
-use crate::grid::{Input as GridInput, generate_input, is_inbounds};
+use crate::grid::{Input as GridInput, generate_input, Grid};
 
 pub struct Input {
     input: String,
@@ -33,13 +33,14 @@ pub fn input_generator(in_lines: &str) -> Input {
 #[aoc(day8, part1)]
 pub fn solve_part1(input_data: &Input) -> i32 {
     let Input { input, line_len, combos } = input_data;
+    let grid = Grid::new(input.clone(), *line_len);
     let mut antinodes: Vec<i32> = vec![];
     for (vec, i, j) in combos {
         if *i == *j {
             continue;
         }
         let pos = vec[*i] + (vec[*i] - vec[*j]);
-        if !antinodes.contains(&pos) && is_inbounds(pos, vec[*i], vec[*i] / line_len - vec[*j] / line_len, input.len(), *line_len) {
+        if !antinodes.contains(&pos) && grid.is_inbounds(pos, vec[*i], vec[*i] / line_len - vec[*j] / line_len) {
             antinodes.push(pos);
         }
     };
@@ -49,6 +50,7 @@ pub fn solve_part1(input_data: &Input) -> i32 {
 #[aoc(day8, part2)]
 pub fn solve_part2(input_data: &Input) -> i32 {
     let Input { input, line_len, combos } = input_data;
+    let grid = Grid::new(input.clone(), *line_len);
     let mut antinodes: Vec<i32> = vec![];
     for (vec, i, j) in combos {
         if *i == *j {
@@ -61,7 +63,7 @@ pub fn solve_part2(input_data: &Input) -> i32 {
         let mut mult = 1;
         while inbounds {
             let pos = vec[*i] + mult * (vec[*i] - vec[*j]);
-            inbounds = is_inbounds(pos, vec[*i], mult * (vec[*i] / line_len - vec[*j] / line_len), input.len(), *line_len);
+            inbounds = grid.is_inbounds(pos, vec[*i], mult * (vec[*i] / line_len - vec[*j] / line_len));
             if !antinodes.contains(&pos) && inbounds {
                 antinodes.push(pos);
             }
