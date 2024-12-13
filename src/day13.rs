@@ -1,14 +1,10 @@
 use regex::Regex;
 
-#[aoc_generator(day13)]
-pub fn input_generator(in_lines: &str) -> Vec<f64> {
+fn compute_cost(in_lines: &str, offset_prize: bool) -> i64 {
     let re = Regex::new(r"(\d+)").unwrap();
-    re.find_iter(in_lines)
+    let mut input: Vec<f64> = re.find_iter(in_lines)
         .map(|a| a.as_str().parse().unwrap())
-        .collect()
-}
-
-fn compute_cost(input: &mut Vec<f64>, offset_prize: bool) -> i64 {
+        .collect();
     let prize_offset: f64 = match offset_prize {
         false => 0.0,
         true => 10000000000000.0
@@ -32,11 +28,11 @@ fn compute_cost(input: &mut Vec<f64>, offset_prize: bool) -> i64 {
 }
 
 #[aoc(day13, part1)]
-pub fn solve_part1(input: &Vec<f64>) -> i64 {
-    compute_cost(&mut input.clone(), false)
+pub fn solve_part1(input: &str) -> i64 {
+    compute_cost(input, false)
 }
 
 #[aoc(day13, part2)]
-pub fn solve_part2(input: &Vec<f64>) -> i64 {
-    compute_cost(&mut input.clone(), true)
+pub fn solve_part2(input: &str) -> i64 {
+    compute_cost(input, true)
 }
