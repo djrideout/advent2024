@@ -5,10 +5,7 @@ fn move_robots(in_lines: &str, width: i32, height: i32, seconds: i32, check_tree
     let mut input: Vec<i32> = re.find_iter(in_lines)
         .map(|a| a.as_str().parse().unwrap())
         .collect();
-    let mut quad0_count = 0;
-    let mut quad1_count = 0;
-    let mut quad2_count = 0;
-    let mut quad3_count = 0;
+    let mut quadrants = [0, 0, 0 ,0];
     let mut bots: Vec<(i32, i32)> = vec![];
     while input.len() > 0 {
         let vy = input.pop().unwrap();
@@ -30,15 +27,15 @@ fn move_robots(in_lines: &str, width: i32, height: i32, seconds: i32, check_tree
         bots.push((next_px, next_py));
         if next_px < width / 2 {
             if next_py < height / 2 {
-                quad0_count += 1;
+                quadrants[0] += 1;
             } else if next_py != height / 2 {
-                quad2_count += 1;
+                quadrants[2] += 1;
             }
         } else if next_px != width / 2 {
             if next_py < height / 2 {
-                quad1_count += 1;
+                quadrants[1] += 1;
             } else if next_py != height / 2 {
-                quad3_count += 1;
+                quadrants[3] += 1;
             }
         }
     }
@@ -62,7 +59,7 @@ fn move_robots(in_lines: &str, width: i32, height: i32, seconds: i32, check_tree
         }
         return 0;
     }
-    quad0_count * quad1_count * quad2_count * quad3_count
+    quadrants.into_iter().fold(1, |accu, count| accu * count)
 }
 
 #[aoc(day14, part1)]
