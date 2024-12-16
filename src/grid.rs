@@ -58,3 +58,21 @@ impl Grid {
         ('!', char_pos)
     }
 }
+
+pub fn get_opposite_direction(direction: usize) -> usize {
+    7 - direction
+}
+
+pub fn get_perpendicular_directions(direction: usize) -> [usize; 2] {
+    match direction {
+        0 => [2, 5],
+        1 => [3, 4],
+        2 => [0, 7],
+        3 => [1, 6],
+        4 => [1, 6],
+        5 => [0, 7],
+        6 => [3, 4],
+        7 => [2, 5],
+        _ => [0, 0]
+    }
+}
