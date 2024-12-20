@@ -49,11 +49,10 @@ pub fn generate_input(input: &str) -> Input {
                 designs.push(l.to_owned());
             }
         });
-    towels.sort();
     let mut atomic_towels = vec![];
     let mut parent_towels = HashMap::new();
     for towel in towels {
-        let count = combo_count(towel.clone(), &atomic_towels, &mut parent_towels);
+        let count = combo_count(towel.clone(), &atomic_towels, &parent_towels);
         if count == 0 {
             parent_towels.insert(towel.clone(), vec![]);
             atomic_towels.push(towel);
