@@ -26,7 +26,7 @@ pub fn solve_part1(input: &str) -> usize {
         let other_pcs: Vec<&String> = links.into_iter().collect();
         for i in 0 .. other_pcs.len() {
             for j in 0 .. other_pcs.len() {
-                if i == j || !all_links.get(other_pcs[i]).unwrap().contains(other_pcs[j]) {
+                if !all_links.get(other_pcs[i]).unwrap().contains(other_pcs[j]) {
                     continue;
                 }
                 let mut triplet = [pc, other_pcs[i], other_pcs[j]];
@@ -52,17 +52,17 @@ pub fn solve_part2(input: &str) -> String {
             let set_b = all_links.get(b).unwrap();
             let mut cycle_a = cycles.get(a).unwrap().clone();
             let mut cycle_b = cycles.get(b).unwrap().clone();
-            let mutuals = set_a.intersection(set_b).map(|str| str.to_string());
+            let mutuals = set_a.intersection(set_b);
             for mutual in mutuals {
                 let mut connected_to_all = true;
-                let union: Vec<String> = cycle_a.union(&cycle_b).map(|str| str.to_string()).collect();
-                for pc in &union {
+                let union = cycle_a.union(&cycle_b);
+                for pc in union {
                     let set_pc = all_links.get(pc).unwrap();
-                    connected_to_all &= set_pc.contains(&mutual);
+                    connected_to_all &= set_pc.contains(mutual);
                 }
                 if connected_to_all {
-                    cycle_a.insert(mutual.clone());
-                    cycle_b.insert(mutual);
+                    cycle_a.insert(mutual.to_string());
+                    cycle_b.insert(mutual.to_string());
                 }
             }
             if cycle_a.len() > largest_len {
