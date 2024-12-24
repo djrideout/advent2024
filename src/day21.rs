@@ -197,39 +197,37 @@ fn get_presses(curr_button: char, next_button: char) -> Vec<String> {
     }.into_iter().map(|str| str.to_string()).collect()
 }
 
-fn shortest_path(seq: String, button_states: Vec<char>) -> (String, Vec<char>) {
+fn shortest_path(seq: String, counter: i32) -> String {
     let chars: Vec<char> = seq.chars().collect();
-    let mut min = Vec::<(String, Vec<char>)>::new();
-    let mut q = VecDeque::<(i32, (String, Vec<char>))>::new();
-    let mut buttons = button_states.clone();
-    let initial_button = buttons.remove(0);
-    q.push_back((-1, ("".to_string(), buttons)));
+    let mut min = Vec::<String>::new();
+    let mut q = VecDeque::<(i32, String)>::new();
+    q.push_back((-1, "".to_string()));
     while q.len() > 0 {
         let (i_i32, sub_seq) = q.pop_back().unwrap();
         let curr_button = match i_i32 {
-            -1 => initial_button,
+            -1 => 'A',
             _ => chars[i_i32 as usize]
         };
         let i = i_i32 as usize;
         let options = get_presses(curr_button, chars[i + 1]);
         for option in options {
             let next_sub_seq = sub_seq.clone();
-            let results = match next_sub_seq.1.len() {
+            let results = match counter {
                 0 => {
-                    let mut with_option = next_sub_seq.0.clone();
+                    let mut with_option = next_sub_seq.clone();
                     with_option.push_str(&option);
-                    (with_option, vec![])
+                    with_option
                 },
                 _ => {
-                    let mut with_option = next_sub_seq.0.clone();
-                    let shortest = shortest_path(option.clone(), next_sub_seq.1.clone());
-                    with_option.push_str(&shortest.0);
-                    (with_option, shortest.1)
+                    let mut with_option = next_sub_seq.clone();
+                    let shortest = shortest_path(option.clone(), counter - 1);
+                    with_option.push_str(&shortest);
+                    with_option
                 }
             };
             if min.len() == i + 1 {
                 min.push(results.clone());
-            } else if results.0.len() < min[i + 1].0.len() {
+            } else if results.len() < min[i + 1].len() {
                 min[i + 1] = results.clone();
             }
             if i + 2 < chars.len() {
@@ -237,12 +235,10 @@ fn shortest_path(seq: String, button_states: Vec<char>) -> (String, Vec<char>) {
             }
         }
         q.make_contiguous().sort_by(|(_, a), (_, b)| {
-            a.0.len().cmp(&b.0.len())
+            a.len().cmp(&b.len())
         });
     }
-    let mut output_buttons = vec![*chars.last().unwrap()];
-    output_buttons.append(&mut min.last().unwrap().1.clone());
-    (min.last().unwrap().0.clone(), output_buttons)
+    min.last().unwrap().clone()
 }
 
 #[aoc(day21, part1)]
@@ -250,14 +246,21 @@ pub fn solve_part1(input: &str) -> usize {
     let digit_regex = Regex::new(r"(\d+)").unwrap();
     let mut sum = 0;
     input.lines().for_each(|l| {
-        let result = shortest_path(l.to_string(), vec!['A', 'A', 'A']);
+        let result = shortest_path(l.to_string(), 2);
         let numeric_code: usize = digit_regex.find(l).unwrap().as_str().parse().unwrap();
-        sum += result.0.len() * numeric_code;
+        sum += result.len() * numeric_code;
     });
     sum
 }
 
 #[aoc(day21, part2)]
 pub fn solve_part2(input: &str) -> usize {
-    29
+    let digit_regex = Regex::new(r"(\d+)").unwrap();
+    let mut sum = 0;
+    input.lines().for_each(|l| {
+        let result = shortest_path(l.to_string(), 2);
+        let numeric_code: usize = digit_regex.find(l).unwrap().as_str().parse().unwrap();
+        sum += result.len() * numeric_code;
+    });
+    sum
 }
