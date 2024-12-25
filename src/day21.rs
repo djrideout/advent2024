@@ -1,4 +1,4 @@
-use std::collections::{HashMap, VecDeque};
+use std::collections::HashMap;
 use regex::Regex;
 
 fn get_presses(curr_button: char, next_button: char) -> Vec<String> {
@@ -204,10 +204,9 @@ fn shortest_path(seq: String, counter: i32, cache: &mut HashMap<String, usize>) 
     }
     let chars: Vec<char> = seq.chars().collect();
     let mut min = Vec::<usize>::new();
-    let mut q = VecDeque::<(i32, usize)>::new();
-    q.push_back((-1, 0));
+    let mut q = vec![(-1, 0)];
     while q.len() > 0 {
-        let (i_i32, sub_seq_len) = q.pop_back().unwrap();
+        let (i_i32, sub_seq_len) = q.pop().unwrap();
         let curr_button = match i_i32 {
             -1 => 'A',
             _ => chars[i_i32 as usize]
@@ -225,10 +224,10 @@ fn shortest_path(seq: String, counter: i32, cache: &mut HashMap<String, usize>) 
                 min[i + 1] = results;
             }
             if i + 2 < chars.len() {
-                q.push_back((i_i32 + 1, results));
+                q.push((i_i32 + 1, results));
             }
         }
-        q.make_contiguous().sort_by(|(_, a), (_, b)| a.cmp(&b));
+        q.sort_by(|(_, a), (_, b)| a.cmp(&b));
     }
     let result = min.last().unwrap();
     cache.insert(key, *result);
