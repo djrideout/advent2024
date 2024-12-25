@@ -1,4 +1,4 @@
-use std::collections::VecDeque;
+use std::collections::{HashMap, VecDeque};
 use regex::Regex;
 
 fn get_presses(curr_button: char, next_button: char) -> Vec<String> {
@@ -197,13 +197,17 @@ fn get_presses(curr_button: char, next_button: char) -> Vec<String> {
     }.into_iter().map(|str| str.to_string()).collect()
 }
 
-fn shortest_path(seq: String, counter: i32) -> String {
+fn shortest_path(seq: String, counter: i32, cache: &mut HashMap<String, usize>) -> usize {
+    let key = format!("{}_{}", seq, counter);
+    if cache.contains_key(&key) {
+        return *cache.get(&key).unwrap();
+    }
     let chars: Vec<char> = seq.chars().collect();
-    let mut min = Vec::<String>::new();
-    let mut q = VecDeque::<(i32, String)>::new();
-    q.push_back((-1, "".to_string()));
+    let mut min = Vec::<usize>::new();
+    let mut q = VecDeque::<(i32, usize)>::new();
+    q.push_back((-1, 0));
     while q.len() > 0 {
-        let (i_i32, sub_seq) = q.pop_back().unwrap();
+        let (i_i32, sub_seq_len) = q.pop_back().unwrap();
         let curr_button = match i_i32 {
             -1 => 'A',
             _ => chars[i_i32 as usize]
@@ -211,34 +215,24 @@ fn shortest_path(seq: String, counter: i32) -> String {
         let i = i_i32 as usize;
         let options = get_presses(curr_button, chars[i + 1]);
         for option in options {
-            let next_sub_seq = sub_seq.clone();
             let results = match counter {
-                0 => {
-                    let mut with_option = next_sub_seq.clone();
-                    with_option.push_str(&option);
-                    with_option
-                },
-                _ => {
-                    let mut with_option = next_sub_seq.clone();
-                    let shortest = shortest_path(option.clone(), counter - 1);
-                    with_option.push_str(&shortest);
-                    with_option
-                }
+                0 => sub_seq_len + option.len(),
+                _ => sub_seq_len + shortest_path(option.clone(), counter - 1, cache)
             };
             if min.len() == i + 1 {
                 min.push(results.clone());
-            } else if results.len() < min[i + 1].len() {
-                min[i + 1] = results.clone();
+            } else if results < min[i + 1] {
+                min[i + 1] = results;
             }
             if i + 2 < chars.len() {
                 q.push_back((i_i32 + 1, results));
             }
         }
-        q.make_contiguous().sort_by(|(_, a), (_, b)| {
-            a.len().cmp(&b.len())
-        });
+        q.make_contiguous().sort_by(|(_, a), (_, b)| a.cmp(&b));
     }
-    min.last().unwrap().clone()
+    let result = min.last().unwrap();
+    cache.insert(key, *result);
+    *result
 }
 
 #[aoc(day21, part1)]
@@ -246,9 +240,10 @@ pub fn solve_part1(input: &str) -> usize {
     let digit_regex = Regex::new(r"(\d+)").unwrap();
     let mut sum = 0;
     input.lines().for_each(|l| {
-        let result = shortest_path(l.to_string(), 2);
+        let mut cache: HashMap<String, usize> = HashMap::new();
+        let result = shortest_path(l.to_string(), 2, &mut cache);
         let numeric_code: usize = digit_regex.find(l).unwrap().as_str().parse().unwrap();
-        sum += result.len() * numeric_code;
+        sum += result * numeric_code;
     });
     sum
 }
@@ -258,9 +253,10 @@ pub fn solve_part2(input: &str) -> usize {
     let digit_regex = Regex::new(r"(\d+)").unwrap();
     let mut sum = 0;
     input.lines().for_each(|l| {
-        let result = shortest_path(l.to_string(), 2);
+        let mut cache: HashMap<String, usize> = HashMap::new();
+        let result = shortest_path(l.to_string(), 25, &mut cache);
         let numeric_code: usize = digit_regex.find(l).unwrap().as_str().parse().unwrap();
-        sum += result.len() * numeric_code;
+        sum += result * numeric_code;
     });
     sum
 }
