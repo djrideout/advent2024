@@ -235,28 +235,24 @@ fn shortest_path(seq: String, counter: i32, cache: &mut HashMap<String, usize>) 
     *result
 }
 
-#[aoc(day21, part1)]
-pub fn solve_part1(input: &str) -> usize {
+fn compute_sum(input: &str, middle_remotes: i32) -> usize {
     let digit_regex = Regex::new(r"(\d+)").unwrap();
     let mut sum = 0;
     input.lines().for_each(|l| {
         let mut cache: HashMap<String, usize> = HashMap::new();
-        let result = shortest_path(l.to_string(), 2, &mut cache);
+        let result = shortest_path(l.to_string(), middle_remotes, &mut cache);
         let numeric_code: usize = digit_regex.find(l).unwrap().as_str().parse().unwrap();
         sum += result * numeric_code;
     });
     sum
 }
 
+#[aoc(day21, part1)]
+pub fn solve_part1(input: &str) -> usize {
+    compute_sum(input, 2)
+}
+
 #[aoc(day21, part2)]
 pub fn solve_part2(input: &str) -> usize {
-    let digit_regex = Regex::new(r"(\d+)").unwrap();
-    let mut sum = 0;
-    input.lines().for_each(|l| {
-        let mut cache: HashMap<String, usize> = HashMap::new();
-        let result = shortest_path(l.to_string(), 25, &mut cache);
-        let numeric_code: usize = digit_regex.find(l).unwrap().as_str().parse().unwrap();
-        sum += result * numeric_code;
-    });
-    sum
+    compute_sum(input, 25)
 }
