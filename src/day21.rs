@@ -197,8 +197,8 @@ fn get_presses(curr_button: char, next_button: char) -> Vec<String> {
     }.into_iter().map(|str| str.to_string()).collect()
 }
 
-fn shortest_path(seq: String, counter: i32, cache: &mut HashMap<String, usize>) -> usize {
-    let key = format!("{}_{}", seq, counter);
+fn shortest_len(seq: String, middle_remotes: i32, cache: &mut HashMap<String, usize>) -> usize {
+    let key = format!("{}_{}", seq, middle_remotes);
     if cache.contains_key(&key) {
         return *cache.get(&key).unwrap();
     }
@@ -206,25 +206,24 @@ fn shortest_path(seq: String, counter: i32, cache: &mut HashMap<String, usize>) 
     let mut min = Vec::<usize>::new();
     let mut q = vec![(-1, 0)];
     while q.len() > 0 {
-        let (i_i32, sub_seq_len) = q.pop().unwrap();
+        let (i_i32, curr_len) = q.pop().unwrap();
+        let i = i_i32 as usize;
         let curr_button = match i_i32 {
             -1 => 'A',
-            _ => chars[i_i32 as usize]
+            _ => chars[i]
         };
-        let i = i_i32 as usize;
-        let options = get_presses(curr_button, chars[i + 1]);
-        for option in options {
-            let results = match counter {
-                0 => sub_seq_len + option.len(),
-                _ => sub_seq_len + shortest_path(option.clone(), counter - 1, cache)
+        for option in get_presses(curr_button, chars[i + 1]) {
+            let next_len = curr_len + match middle_remotes {
+                0 => option.len(),
+                _ => shortest_len(option.clone(), middle_remotes - 1, cache)
             };
             if min.len() == i + 1 {
-                min.push(results.clone());
-            } else if results < min[i + 1] {
-                min[i + 1] = results;
+                min.push(next_len);
+            } else if next_len < min[i + 1] {
+                min[i + 1] = next_len;
             }
             if i + 2 < chars.len() {
-                q.push((i_i32 + 1, results));
+                q.push((i_i32 + 1, next_len));
             }
         }
         q.sort_by(|(_, a), (_, b)| a.cmp(&b));
@@ -239,7 +238,7 @@ fn compute_sum(input: &str, middle_remotes: i32) -> usize {
     let mut sum = 0;
     input.lines().for_each(|l| {
         let mut cache: HashMap<String, usize> = HashMap::new();
-        let result = shortest_path(l.to_string(), middle_remotes, &mut cache);
+        let result = shortest_len(l.to_string(), middle_remotes, &mut cache);
         let numeric_code: usize = digit_regex.find(l).unwrap().as_str().parse().unwrap();
         sum += result * numeric_code;
     });
